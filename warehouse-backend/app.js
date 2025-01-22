@@ -1,4 +1,5 @@
 const express = require('express');  
+const cors = require('cors');
 const bodyParser = require('body-parser');  
 const authRoutes = require('./routes/authRoutes');  
 const locationRoutes = require('./routes/locationRoutes');  
@@ -13,6 +14,12 @@ const activityLogRoutes = require('./routes/activityLogRoutes');
 const categoriesRoutes = require('./routes/categoriesRoutes')
   
 const app = express();  
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Ganti dengan URL frontend Anda
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true, // Jika Anda menggunakan cookies atau header otorisasi
+}));
   
 app.use(bodyParser.json());  
   

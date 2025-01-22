@@ -1,96 +1,84 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useAuth } from '../../hooks/useAuth';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
-
-const schema = yup.object({
-  email: yup.string()
-    .email('Must be a valid email')
-    .required('Email is required'),
-  password: yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-}).required();
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IconUser, IconLock } from '@tabler/icons-react'; // Mengimpor ikon dari Tabler
+import useAuth from '../../hooks/useAuth'; // Mengimpor hook login
 
 const Login = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // State untuk loading
   const navigate = useNavigate();
+  const { login } = useAuth(); // Menggunakan hook login dari useAuth.js
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
-  });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true); // Set loading menjadi true
 
-  const onSubmit = async (data) => {
     try {
-      setIsLoading(true);
-      await login(data);
+      await login(username, password); // Menggunakan service login
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (err) {
+      setError(err.message || 'Something went wrong');
     } finally {
-      setIsLoading(false);
+      setLoading(false); // Set loading menjadi false setelah proses selesai
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <Input
-              label="Email Address"
-              type="email"
-              {...register('email')}
-              error={errors.email?.message}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold text-gray-700 text-center">Login</h2>
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+        <form onSubmit={handleLogin} className="mt-4">
+          <div className="mb-4 flex items-center border border-gray-300 rounded-lg px-3 py-2">
+            <IconUser size={20} color="gray" />
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full ml-2 px-4 py-2 bg-transparent border-none outline-none text-gray-700"
+              placeholder="Username"
             />
-
-            <Input
-              label="Password"
+          </div>
+          <div className="mb-4 flex items-center border border-gray-300 rounded-lg px-3 py-2">
+            <IconLock size={20} color="gray" />
+            <input
+              id="password"
               type="password"
-              {...register('password')}
-              error={errors.password?.message}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full ml-2 px-4 py-2 bg-transparent border-none outline-none text-gray-700"
+              placeholder="Password"
             />
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
-          <Button
+          <button
             type="submit"
-            loading={isLoading}
-            className="w-full"
+            className={`w-full py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+            }`}
+            disabled={loading} // Menonaktifkan tombol saat loading
           >
-            Sign in
-          </Button>
+            {loading ? (
+              <div className="flex justify-center items-center space-x-2">
+                <div className="w-4 h-4 border-t-2 border-white border-solid rounded-full animate-spin"></div>
+                <span>Loading...</span>
+              </div>
+            ) : (
+              'Login'
+            )}
+          </button>
         </form>
+        <p className="mt-4 text-sm text-center">
+          Don't have an account?{' '}
+          <a href="/register" className="text-blue-500 hover:underline">
+            Register
+          </a>
+        </p>
       </div>
     </div>
   );

@@ -1,64 +1,48 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+// src/hooks/useAuth.js
+import { useState } from 'react';
+import axios from 'axios';
 
-const AuthContext = createContext(null);
+const useAuth = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  // Fungsi untuk login
+  const login = async (username, password) => {
+    setLoading(true);
+    setError('');
+    setSuccess(false);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await api.get('/auth/me');
-        setUser(response.data);
-      }
-    } catch (error) {
-      localStorage.removeItem('token');
-    } finally {
+      const response = await axios.post('http://localhost:3000/api/auth/login', { username, password });
       setLoading(false);
+      setSuccess(true);
+      localStorage.setItem('token', response.data.token); // Simpan token
+      return response.data; // Mengembalikan data jika login berhasil
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.message || 'Login failed');
     }
   };
 
-  const login = async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    navigate('/dashboard');
+  // Fungsi untuk register
+  const register = async (form) => {
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/register', form);
+      setLoading(false);
+      setSuccess(true);
+      return response.data;
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.message || 'Registration failed');
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
-  };
-
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
-    checkAuth
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return { loading, error, success, login, register };
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export default useAuth;
