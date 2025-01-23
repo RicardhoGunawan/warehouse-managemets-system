@@ -1,19 +1,30 @@
-// services/authService.js
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api/auth';
-
+// services/authService.js  
+import api from './api'; // Import the Axios instance  
+  
+const API_URL = '/api/auth'; // Use relative URL since baseURL is set in api.js  
+  
+const getAuthToken = () => {  
+  return localStorage.getItem('token'); // Retrieve the token from local storage  
+};  
+  
 const login = async (username, password) => {
-  const response = await axios.post(`${API_URL}/login`, { username, password });
-  return response.data;
-};
-
-const register = async (formData) => {
-  const response = await axios.post(`${API_URL}/register`, formData);
-  return response.data;
-};
-
-export default {
-  login,
-  register,
-};
+  try {
+    const response = await api.post(`${API_URL}/login`, { username, password });
+    if (response.data && response.data.token) {
+      return response.data;
+    }
+    throw new Error('Invalid response format');
+  } catch (error) {
+    throw error;
+  }
+};  
+  
+const register = async (formData) => {  
+  const response = await api.post(`${API_URL}/register`, formData);  
+  return response.data;  
+};  
+  
+export default {  
+  login,  
+  register,  
+};  

@@ -1,28 +1,34 @@
+// src/components/auth/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconUser, IconLock } from '@tabler/icons-react'; // Mengimpor ikon dari Tabler
-import useAuth from '../../hooks/useAuth'; // Mengimpor hook login
+import { IconUser, IconLock } from '@tabler/icons-react';
+import useAuth from '../../hooks/useAuth';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // State untuk loading
+  const { loading, error, login } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth(); // Menggunakan hook login dari useAuth.js
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true); // Set loading menjadi true
+    
+    if (!username || !password) {
+      return; // Prevent empty submission
+    }
 
     try {
-      await login(username, password); // Menggunakan service login
-      navigate('/dashboard');
+      const response = await login(username, password);
+      
+      // Hanya redirect jika login berhasil dan ada token
+      if (response && response.token) {
+        navigate('/dashboard');
+      }
+      // Jika tidak ada token, error message akan ditampilkan oleh useAuth
+      
     } catch (err) {
-      setError(err.message || 'Something went wrong');
-    } finally {
-      setLoading(false); // Set loading menjadi false setelah proses selesai
+      // Error handling sudah dilakukan di useAuth
+      console.error('Login error:', err);
     }
   };
 
@@ -30,7 +36,13 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-semibold text-gray-700 text-center">Login</h2>
-        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="mt-4">
           <div className="mb-4 flex items-center border border-gray-300 rounded-lg px-3 py-2">
             <IconUser size={20} color="gray" />
@@ -58,10 +70,10 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className={`w-full py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+            className={`w-full py-2 px-4 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
             }`}
-            disabled={loading} // Menonaktifkan tombol saat loading
+            disabled={loading}
           >
             {loading ? (
               <div className="flex justify-center items-center space-x-2">
