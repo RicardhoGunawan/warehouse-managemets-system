@@ -3,28 +3,20 @@ import api from './api';
 const API_URL = '/api/locations';
 
 export const getLocations = async () => {
-  try {
-    const response = await api.get(API_URL);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch locations');
-  }
+  const response = await api.get(API_URL);
+  return response.data;
 };
 
-export const addLocation = async (location) => {
-  try {
-    const response = await api.post(API_URL, location);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to add location');
-  }
+export const addLocation = async (locationData) => {
+  const response = await api.post(API_URL, locationData);
+  return response.data;
 };
 
-export const updateLocation = async (location) => {
-  try {
-    const response = await api.put(`${API_URL}/${location.id}`, location);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to update location');
-  }
+export const updateLocation = async (id, locationData) => {
+  const response = await api.put(`${API_URL}/${id}`, locationData);
+  return response.data;
+};
+
+export const deleteLocation = async (id) => {
+  await api.delete(`${API_URL}/${id}`);
 };

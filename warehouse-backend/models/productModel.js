@@ -31,7 +31,14 @@ const Product = sequelize.define('Product', {
             model: 'categories',  
             key: 'category_id',  
         },  
-    },  
+    }, 
+    location_id: { // Add location_id field
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'locations',
+            key: 'location_id',
+        },
+    }, 
 });  
   
 // Definisikan relasi  

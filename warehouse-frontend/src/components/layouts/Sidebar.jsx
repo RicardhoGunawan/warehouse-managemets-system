@@ -3,7 +3,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';      
 import {       
   LayoutDashboard,       
-  Box,       
+  Box,
+  Map,       
   ShoppingBag,       
   ClipboardList,      
   Settings,      
@@ -19,6 +20,7 @@ const Sidebar = () => {
   const menuItems = [      
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },      
     { icon: Box, label: 'Categories', path: '/categories' },    
+    { icon: Map, label: 'Locations', path: '/locations' },    
     { icon: ShoppingBag, label: 'Products', path: '/products' },      
     { icon: ClipboardList, label: 'Orders', path: '/orders' },      
     { icon: Truck, label: 'Shipments', path: '/shipments' },      

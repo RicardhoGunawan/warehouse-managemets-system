@@ -1,44 +1,76 @@
 import { useState, useEffect } from 'react';
-import { getLocations, addLocation, updateLocation } from '../services/locationService';
+import { toast } from 'react-toastify';
+import { 
+  getLocations, 
+  addLocation, 
+  updateLocation, 
+  deleteLocation 
+} from '../services/locationService';
 
 const useLocations = () => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchLocations = async () => {
+    try {
+      setLoading(true);
+      const response = await getLocations();
+      setLocations(response);
+      setLoading(false);
+    } catch (err) {
+      toast.error('Failed to fetch locations');
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const response = await getLocations();
-        setLocations(response);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchLocations();
   }, []);
 
-  const addNewLocation = async (location) => {
+  const addNewLocation = async (locationData) => {
     try {
-      const response = await addLocation(location);
-      setLocations((prev) => [...prev, response]);
+      const newLocation = await addLocation(locationData);
+      setLocations((prev) => [...prev, newLocation]);
+      toast.success('Location added successfully');
+      fetchLocations(); // Refresh data
     } catch (err) {
+      toast.error('Failed to add location');
       setError(err.message);
     }
   };
 
-  const editLocation = async (location) => {
+  const editLocation = async (id, locationData) => {
     try {
-      const response = await updateLocation(location);
-      setLocations((prev) => prev.map((item) => (item.id === location.id ? response : item)));
+      await updateLocation(id, locationData);
+      toast.success('Location updated successfully');
+      fetchLocations(); // Refresh data
     } catch (err) {
+      toast.error('Failed to update location');
       setError(err.message);
     }
   };
 
-  return { locations, loading, error, addNewLocation, editLocation };
+  const removeLocation = async (id) => {
+    try {
+      await deleteLocation(id);
+      toast.success('Location deleted successfully');
+      fetchLocations(); // Refresh data
+    } catch (err) {
+      toast.error('Failed to delete location');
+      setError(err.message);
+    }
+  };
+
+  return { 
+    locations, 
+    loading, 
+    error, 
+    addNewLocation, 
+    editLocation,
+    removeLocation 
+  };
 };
 
 export default useLocations;

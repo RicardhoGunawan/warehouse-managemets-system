@@ -9,6 +9,10 @@ import DashboardLayout from './components/layouts/DashboardLayout';
 import Dashboard from './components/dashboard/Dashboard';
 import CategoryList from './components/categories/CategoryList';
 import CategoryForm from './components/categories/CategoryForm';
+import LocationList from './components/locations/LocationList';
+import LocationForm from './components/locations/LocationForm';
+import ProductsList from './components/products/ProductList';
+import ProductsForm from './components/products/ProductForm';
 
 const App = () => {
   return (
@@ -32,6 +36,22 @@ const App = () => {
           {/* Halaman Form Kategori */}
           <Route path="/categories/form" element={<DashboardLayout />}>
             <Route index element={<CategoryForm />} />
+          </Route>
+
+          <Route path="/locations" element={<DashboardLayout />}>
+            <Route index element={<LocationList />} />
+          </Route>
+
+          <Route path="/locations/form" element={<DashboardLayout />}>
+            <Route index element={<LocationForm />} />
+          </Route>
+
+          <Route path="/products" element={<DashboardLayout />}>
+            <Route index element={<ProductsList />} />
+          </Route>
+
+          <Route path="/products/form" element={<DashboardLayout />}>
+            <Route index element={<ProductsForm />} />
           </Route>
         </Routes>
       </Router>
